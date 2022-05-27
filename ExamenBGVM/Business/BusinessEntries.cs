@@ -41,6 +41,23 @@ namespace ExamenBGVM.Business
             return entries ?? new Categories();
         }
 
+        public static async Task<Entries> ReadRandom(string url)
+        {
+            var entries = new Entries();
+            try
+            {
+                using var httpClient = new HttpClient();
+                using var response = await httpClient.GetAsync(url + "/random");
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                entries = JsonConvert.DeserializeObject<Entries>(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Error al consumir el servicio random: {ex}");
+            }
+            return entries ?? new Entries();
+        }
+
         internal static class ApplicationLogging
         {
             internal static ILoggerFactory LoggerFactory { get; set; }// = new LoggerFactory();

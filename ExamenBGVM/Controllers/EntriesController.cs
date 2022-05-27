@@ -52,12 +52,33 @@ namespace ExamenBGVM.Controllers
         }
 
         [HttpGet("~/GetCategories")]
-        public Categories GetByCategories()
+        public Categories GetCategories()
         {
             try
             {
                 _logger.LogDebug("Obteniendo registros de la liga https://api.publicapis.org/categories por categorias");
                 return BusinessEntries.ReadCategories(url).Result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"No se pudo obtener los registros: {ex}");
+                return new Categories();
+            }
+        }
+
+        [HttpGet("~/GetCategoriesDistinct")]
+        public Categories GetCategoriesDistinct()
+        {
+            try
+            {
+                _logger.LogDebug("Obteniendo registros de la liga https://api.publicapis.org/entries por categorias");
+                var ent = BusinessEntries.ReadEntries(url).Result;
+                var cat = new Categories
+                {
+                    categories = ent.entries.Select(z => z.Category).Distinct().ToList()
+                };
+                cat.count = cat.categories.Count();
+                return cat;
             }
             catch (Exception ex)
             {
@@ -90,6 +111,21 @@ namespace ExamenBGVM.Controllers
                 ent.entries = items.ToList();
                 ent.count = ent.entries.Count;
                 return ent;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"No se pudo obtener los registros: {ex}");
+                return new Entries();
+            }
+        }
+
+        [HttpGet("~/TryLucky")]
+        public Entries TryLucky()
+        {
+            try
+            {
+                _logger.LogDebug("Obteniendo registros de la liga https://api.publicapis.org/random");
+                return BusinessEntries.ReadRandom(url).Result;
             }
             catch (Exception ex)
             {
